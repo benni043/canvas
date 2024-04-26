@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+
+<canvas id="myCanvas" width="700" height="400" style="border:1px solid #d3d3d3;">
+</canvas>
+
+<script>
+    let canvas = document.getElementById('myCanvas');
+    let ctx = canvas.getContext('2d');
+
+    let gridSize = 4;
+    let cellSize = canvas.height / gridSize;
+    let dragObject = null;
+
+    let objects = [
+        {
+            id: 0,
+            x: 420,
+            y: 50,
+            w: cellSize,
+            h: cellSize,
+            color: 'blue',
+            originX: 420,
+            originY: 50,
+            gridPosX: null,
+            gridPosY: null
+        },
+        {
+            id: 1,
+            x: 420,
+            y: 150,
+            w: cellSize,
+            h: cellSize,
+            color: 'blue',
+            originX: 420,
+            originY: 150,
+            gridPosX: null,
+            gridPosY: null
+        },
+        {
+            id: 2,
+            x: 420,
+            y: 250,
+            w: cellSize,
+            h: cellSize,
+            color: 'blue',
+            originX: 420,
+            originY: 250,
+            gridPosX: null,
+            gridPosY: null
+        }
+    ];
+
+    let grid = Array(gridSize).fill(undefined).map(() => Array(gridSize).fill({
+        color: 'white',
+        originX: null,
+        originY: null,
+        id: null
+    }));
+
+    function drawGrid() {
+        for (let i = 0; i < gridSize; i++) {
+            for (let j = 0; j < gridSize; j++) {
+                if (dragObject && dragObject.color === 'red' && i * cellSize === dragObject.x && j * cellSize === dragObject.y) {
+                    continue;
+                }
+                ctx.fillStyle = grid[i][j].color;
+                ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+                ctx.strokeRect(i * cellSize, j * cellSize, cellSize, cellSize);
+            }
+        }
+    }
+
+    function drawObjects() {
+        objects.forEach(obj => {
+            ctx.fillStyle = obj.color;
+            ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
+            ctx.strokeRect(obj.x, obj.y, obj.w, obj.h);
+        });
+    }
+
+    function redraw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawGrid();
+        drawObjects();
+
+        if (dragObject) {
+            ctx.fillStyle = dragObject.color;
+            ctx.fillRect(dragObject.x, dragObject.y, dragObject.w, dragObject.h);
+        }
+    }
+
+    redraw();
+
+    canvas.addEventListener('mousedown', function (event) {
+        let rect = canvas.getBoundingClientRect();
+        let x = event.clientX - rect.left;
+        let y = event.clientY - rect.top;
+
+        let i = Math.floor(x / cellSize);
+        let j = Math.floor(y / cellSize);
+
+        if (i < gridSize && j < gridSize && grid[i][j].id !== null) {
+            dragObject = {
+                id: grid[i][j].id,
+                x: i * cellSize,
+                y: j * cellSize,
+                w: cellSize,
+                h: cellSize,
+                color: 'red',
+                originX: grid[i][j].originX,
+                originY: grid[i][j].originY,
+                gridPosX: i,
+                gridPosY: j
+            };
+
+            grid[i][j] = {color: 'white', originX: null, originY: null, id: null};
+        } else {
+            dragObject = objects.find(obj => x > obj.x && x < obj.x + obj.w && y > obj.y && y < obj.y + obj.h);
+        }
+    });
+
+    canvas.addEventListener('mousemove', function (event) {
+        if (dragObject) {
+            let rect = canvas.getBoundingClientRect();
+            let x = event.clientX - rect.left;
+            let y = event.clientY - rect.top;
+
+            dragObject.x = x - dragObject.w / 2;
+            dragObject.y = y - dragObject.h / 2;
+
+            redraw();
+        }
+    });
+
+    canvas.addEventListener('mouseup', function (event) {
+        if (dragObject) {
+            let rect = canvas.getBoundingClientRect();
+            let x = event.clientX - rect.left;
+            let y = event.clientY - rect.top;
+
+            let i = Math.floor(x / cellSize);
+            let j = Math.floor(y / cellSize);
+
+            if (i < gridSize && j < gridSize) {
+                if (grid[i][j].id != null) {
+                    if (dragObject.color === 'blue') {
+                        objects = objects.filter(obj => obj !== dragObject);
+
+                        objects.push({
+                            id: dragObject.id,
+                            x: dragObject.originX,
+                            y: dragObject.originY,
+                            w: cellSize,
+                            h: cellSize,
+                            color: 'blue',
+                            originX: dragObject.originX,
+                            originY: dragObject.originY,
+                            gridPosX: null,
+                            gridPosY: null
+                        });
+                    } else if (dragObject.color === 'red') {
+                        grid[dragObject.gridPosX][dragObject.gridPosY] = dragObject;
+                    }
+
+                    dragObject = null;
+                    redraw();
+
+                    return;
+                }
+
+                grid[i][j] = {
+                    color: 'red',
+                    originX: dragObject.originX,
+                    originY: dragObject.originY,
+                    id: dragObject.id
+                };
+
+                if (dragObject.color === 'blue') {
+                    objects = objects.filter(obj => obj !== dragObject);
+                }
+            } else {
+                objects = objects.filter(obj => obj !== dragObject);
+
+                objects.push({
+                    id: dragObject.id,
+                    x: dragObject.originX,
+                    y: dragObject.originY,
+                    w: cellSize,
+                    h: cellSize,
+                    color: 'blue',
+                    originX: dragObject.originX,
+                    originY: dragObject.originY,
+                    gridPosY: null,
+                    gridPosX: null
+                });
+            }
+
+            dragObject = null;
+            redraw();
+        }
+    });
+</script>
+
+</body>
+</html>
