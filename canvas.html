@@ -24,7 +24,8 @@
             originX: 420,
             originY: 50,
             gridPosX: null,
-            gridPosY: null
+            gridPosY: null,
+            isInGrid: false
         },
         {
             id: 1,
@@ -36,7 +37,8 @@
             originX: 420,
             originY: 150,
             gridPosX: null,
-            gridPosY: null
+            gridPosY: null,
+            isInGrid: false
         },
         {
             id: 2,
@@ -48,7 +50,8 @@
             originX: 420,
             originY: 250,
             gridPosX: null,
-            gridPosY: null
+            gridPosY: null,
+            isInGrid: false
         }
     ];
 
@@ -113,7 +116,8 @@
                 originX: grid[i][j].originX,
                 originY: grid[i][j].originY,
                 gridPosX: i,
-                gridPosY: j
+                gridPosY: j,
+                isInGrid: true
             };
 
             grid[i][j] = {color: 'white', originX: null, originY: null, id: null};
@@ -146,7 +150,7 @@
 
             if (i < gridSize && j < gridSize) {
                 if (grid[i][j].id != null) {
-                    if (dragObject.color === 'blue') {
+                    if (!dragObject.isInGrid) {
                         objects = objects.filter(obj => obj !== dragObject);
 
                         objects.push({
@@ -159,9 +163,10 @@
                             originX: dragObject.originX,
                             originY: dragObject.originY,
                             gridPosX: null,
-                            gridPosY: null
+                            gridPosY: null,
+                            isInGrid: false
                         });
-                    } else if (dragObject.color === 'red') {
+                    } else if (dragObject.isInGrid) {
                         grid[dragObject.gridPosX][dragObject.gridPosY] = dragObject;
                     }
 
@@ -178,7 +183,7 @@
                     id: dragObject.id
                 };
 
-                if (dragObject.color === 'blue') {
+                if (!dragObject.isInGrid) {
                     objects = objects.filter(obj => obj !== dragObject);
                 }
             } else {
@@ -194,7 +199,8 @@
                     originX: dragObject.originX,
                     originY: dragObject.originY,
                     gridPosY: null,
-                    gridPosX: null
+                    gridPosX: null,
+                    isInGrid: false
                 });
             }
 
