@@ -6,8 +6,6 @@
 </canvas>
 
 <script>
-    //todo deadlock if square is in center
-
     let canvas = document.getElementById('myCanvas');
     let ctx = canvas.getContext('2d');
 
@@ -20,7 +18,7 @@
             id: 0,
             x: 420,
             y: 50,
-            w: cellSize * 2,
+            w: cellSize * 3,
             h: cellSize,
             color: 'green',
             originX: 420,
@@ -38,6 +36,19 @@
             color: 'red',
             originX: 420,
             originY: 250,
+            gridPosX: null,
+            gridPosY: null,
+            isInGrid: false
+        },
+        {
+            id: 2,
+            x: 520,
+            y: 150,
+            w: cellSize,
+            h: cellSize * 2,
+            color: 'blue',
+            originX: 520,
+            originY: 150,
             gridPosX: null,
             gridPosY: null,
             isInGrid: false
@@ -142,14 +153,15 @@
 
     canvas.addEventListener('mouseup', function (event) {
         if (dragObject) {
-            let rect = canvas.getBoundingClientRect();
-            let x = event.clientX - rect.left;
-            let y = event.clientY - rect.top;
+            let x = (event.clientX - dragObject.w / 2) + (cellSize / 2);
+            let y = (event.clientY - dragObject.h / 2) + (cellSize / 2);
 
             let i = Math.floor(x / cellSize);
             let j = Math.floor(y / cellSize);
 
-            if (i < gridSize && j < gridSize) {
+            console.log(i + "/" + j)
+
+            if (i < gridSize && j < gridSize && i >= 0 && j >= 0) {
                 let canMoveToGrid = true;
                 for (let di = 0; di < dragObject.w / cellSize; di++) {
                     for (let dj = 0; dj < dragObject.h / cellSize; dj++) {
