@@ -21,36 +21,10 @@
             x: 420,
             y: 50,
             w: cellSize,
-            h: cellSize,
+            h: cellSize * 2,
             color: 'green',
             originX: 420,
             originY: 50,
-            gridPosX: null,
-            gridPosY: null,
-            isInGrid: false
-        },
-        {
-            id: 1,
-            x: 420,
-            y: 150,
-            w: cellSize,
-            h: cellSize,
-            color: 'yellow',
-            originX: 420,
-            originY: 150,
-            gridPosX: null,
-            gridPosY: null,
-            isInGrid: false
-        },
-        {
-            id: 2,
-            x: 420,
-            y: 250,
-            w: cellSize,
-            h: cellSize,
-            color: 'red',
-            originX: 420,
-            originY: 250,
             gridPosX: null,
             gridPosY: null,
             isInGrid: false
@@ -151,10 +125,35 @@
             let j = Math.floor(y / cellSize);
 
             if (i < gridSize && j < gridSize) {
-                if (grid[i][j].id != null) {
+                let canMoveToGrid = true;
+                for (let di = 0; di < dragObject.w / cellSize; di++) {
+                    for (let dj = 0; dj < dragObject.h / cellSize; dj++) {
+                        if (i + di >= gridSize || j + dj >= gridSize || grid[i + di][j + dj].id !== null) {
+                            canMoveToGrid = false;
+                            break;
+                        }
+                    }
+                    if (!canMoveToGrid) {
+                        break;
+                    }
+                }
+
+                if (canMoveToGrid) {
+                    for (let di = 0; di < dragObject.w / cellSize; di++) {
+                        for (let dj = 0; dj < dragObject.h / cellSize; dj++) {
+                            grid[i + di][j + dj] = {
+                                color: dragObject.color,
+                                originX: dragObject.originX,
+                                originY: dragObject.originY,
+                                id: dragObject.id
+                            };
+                        }
+                    }
                     if (!dragObject.isInGrid) {
                         objects = objects.filter(obj => obj !== dragObject);
-
+                    }
+                } else {
+                    if (!dragObject.isInGrid) {
                         objects.push({
                             id: dragObject.id,
                             x: dragObject.originX,
@@ -177,20 +176,7 @@
 
                     return;
                 }
-
-                grid[i][j] = {
-                    color: dragObject.color,
-                    originX: dragObject.originX,
-                    originY: dragObject.originY,
-                    id: dragObject.id
-                };
-
-                if (!dragObject.isInGrid) {
-                    objects = objects.filter(obj => obj !== dragObject);
-                }
             } else {
-                objects = objects.filter(obj => obj !== dragObject);
-
                 objects.push({
                     id: dragObject.id,
                     x: dragObject.originX,
