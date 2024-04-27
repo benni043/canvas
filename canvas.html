@@ -28,6 +28,19 @@
             gridPosX: null,
             gridPosY: null,
             isInGrid: false
+        },
+        {
+            id: 1,
+            x: 420,
+            y: 250,
+            w: cellSize,
+            h: cellSize,
+            color: 'red',
+            originX: 420,
+            originY: 250,
+            gridPosX: null,
+            gridPosY: null,
+            isInGrid: false
         }
     ];
 
@@ -154,12 +167,14 @@
                     }
                 } else {
                     if (!dragObject.isInGrid) {
+                        objects = objects.filter(obj => obj !== dragObject);
+
                         objects.push({
                             id: dragObject.id,
                             x: dragObject.originX,
                             y: dragObject.originY,
-                            w: cellSize,
-                            h: cellSize,
+                            w: dragObject.w,
+                            h: dragObject.h,
                             color: dragObject.color,
                             originX: dragObject.originX,
                             originY: dragObject.originY,
@@ -170,19 +185,16 @@
                     } else if (dragObject.isInGrid) {
                         grid[dragObject.gridPosX][dragObject.gridPosY] = dragObject;
                     }
-
-                    dragObject = null;
-                    redraw();
-
-                    return;
                 }
             } else {
+                objects = objects.filter(obj => obj !== dragObject);
+
                 objects.push({
                     id: dragObject.id,
                     x: dragObject.originX,
                     y: dragObject.originY,
-                    w: cellSize,
-                    h: cellSize,
+                    w: dragObject.w,
+                    h: dragObject.h,
                     color: dragObject.color,
                     originX: dragObject.originX,
                     originY: dragObject.originY,
