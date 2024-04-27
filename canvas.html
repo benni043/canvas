@@ -138,6 +138,33 @@
         }
     });
 
+    canvas.addEventListener('mouseleave', function(event) {
+        if (dragObject) {
+            if (!dragObject.isInGrid) {
+                objects = objects.filter(obj => obj !== dragObject);
+
+                objects.push({
+                    id: dragObject.id,
+                    x: dragObject.originX,
+                    y: dragObject.originY,
+                    w: dragObject.w,
+                    h: dragObject.h,
+                    color: dragObject.color,
+                    originX: dragObject.originX,
+                    originY: dragObject.originY,
+                    gridPosX: null,
+                    gridPosY: null,
+                    isInGrid: false
+                });
+            } else if (dragObject.isInGrid) {
+                grid = gridCopy;
+            }
+
+            dragObject = null;
+            redraw();
+        }
+    });
+
     canvas.addEventListener('mousemove', function (event) {
         if (dragObject) {
             let rect = canvas.getBoundingClientRect();
@@ -158,8 +185,6 @@
 
             let i = Math.floor(x / cellSize);
             let j = Math.floor(y / cellSize);
-
-            console.log(i + "/" + j)
 
             if (i < gridSize && j < gridSize && i >= 0 && j >= 0) {
                 let canMoveToGrid = true;
