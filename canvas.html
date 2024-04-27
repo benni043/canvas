@@ -138,7 +138,18 @@
         }
     });
 
+    canvas.addEventListener('contextmenu', function(event) {
+        event.preventDefault();
+        canvas.focus();
+
+        //todo fixen
+    });
+
     canvas.addEventListener('mouseleave', function(event) {
+       reset()
+    });
+
+    function reset() {
         if (dragObject) {
             if (!dragObject.isInGrid) {
                 objects = objects.filter(obj => obj !== dragObject);
@@ -163,7 +174,7 @@
             dragObject = null;
             redraw();
         }
-    });
+    }
 
     canvas.addEventListener('mousemove', function (event) {
         if (dragObject) {
