@@ -20,8 +20,8 @@
             id: 0,
             x: 420,
             y: 50,
-            w: cellSize,
-            h: cellSize * 2,
+            w: cellSize * 2,
+            h: cellSize,
             color: 'green',
             originX: 420,
             originY: 50,
@@ -48,8 +48,12 @@
         color: 'white',
         originX: null,
         originY: null,
-        id: null
+        id: null,
+        w: null,
+        h: null
     }));
+
+    let gridCopy = null;
 
     function drawGrid() {
         for (let i = 0; i < gridSize; i++) {
@@ -99,8 +103,8 @@
                 id: grid[i][j].id,
                 x: i * cellSize,
                 y: j * cellSize,
-                w: cellSize,
-                h: cellSize,
+                w: grid[i][j].w,
+                h: grid[i][j].h,
                 color: grid[i][j].color,
                 originX: grid[i][j].originX,
                 originY: grid[i][j].originY,
@@ -109,7 +113,15 @@
                 isInGrid: true
             };
 
-            grid[i][j] = {color: 'white', originX: null, originY: null, id: null};
+            gridCopy = JSON.parse(JSON.stringify(grid));
+
+            for (let di = 0; di < grid.length; di++) {
+                for (let dj = 0; dj < grid[di].length; dj++) {
+                    if (grid[di][dj].id === dragObject.id) {
+                        grid[di][dj] = {color: 'white', originX: null, originY: null, id: null, w: null, h: null};
+                    }
+                }
+            }
         } else {
             dragObject = objects.find(obj => x > obj.x && x < obj.x + obj.w && y > obj.y && y < obj.y + obj.h);
         }
@@ -158,7 +170,9 @@
                                 color: dragObject.color,
                                 originX: dragObject.originX,
                                 originY: dragObject.originY,
-                                id: dragObject.id
+                                id: dragObject.id,
+                                w: dragObject.w,
+                                h: dragObject.h
                             };
                         }
                     }
@@ -181,7 +195,7 @@
                             isInGrid: false
                         });
                     } else if (dragObject.isInGrid) {
-                        grid[dragObject.gridPosX][dragObject.gridPosY] = dragObject;
+                        grid = gridCopy;
                     }
                 }
             } else {
