@@ -113,10 +113,24 @@
                 }
                 ctx.fillStyle = grid[i][j].color;
 
-                ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+                isNeighborFreeOrDifferentId(grid, i, j, grid[i][j].id, grid[i][j].color)
+
+                // ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
                 ctx.strokeRect(i * cellSize, j * cellSize, cellSize, cellSize);
             }
         }
+    }
+
+    function isNeighborFreeOrDifferentId(grid, myX, myY, myId, color) {
+        ctx.fillStyle = color;
+
+        ctx.beginPath();
+        ctx.moveTo(50 + 10, 50);
+        ctx.arcTo(50 + cellSize, 50, 50 + cellSize, 50 + cellSize, 10);
+        ctx.arcTo(50 + cellSize, 50 + cellSize, 50, 50 + cellSize, 0);
+        ctx.arcTo(50, 50 + cellSize, 50, 50, 0);
+        ctx.arcTo(50, 50, 50 + cellSize, 50, 10);
+        ctx.stroke();
     }
 
     function drawObjects() {
