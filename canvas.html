@@ -2,61 +2,100 @@
 <html lang="en">
 <body>
 
-<canvas id="myCanvas" width="700" height="400" style="border:1px solid #d3d3d3;">
+<canvas id="myCanvas" width="800" height="400" style="border:1px solid #d3d3d3;">
 </canvas>
 
 <script>
-    let canvas = document.getElementById('myCanvas');
-    let ctx = canvas.getContext('2d');
+    let canvas = document.getElementById("myCanvas");
+    let ctx = canvas.getContext("2d");
 
-    let gridSize = 4;
+    let gridSize = 10;
     let cellSize = canvas.height / gridSize;
     let dragObject = null;
 
-    let objects = [
-        {
-            id: 0,
-            x: 420,
-            y: 50,
-            w: cellSize * 3,
-            h: cellSize,
-            color: 'green',
-            originX: 420,
-            originY: 50,
-            gridPosX: null,
-            gridPosY: null,
-            isInGrid: false
-        },
-        {
-            id: 1,
-            x: 420,
-            y: 250,
-            w: cellSize,
-            h: cellSize,
-            color: 'red',
-            originX: 420,
-            originY: 250,
-            gridPosX: null,
-            gridPosY: null,
-            isInGrid: false
-        },
-        {
-            id: 2,
-            x: 520,
-            y: 150,
-            w: cellSize,
-            h: cellSize * 2,
-            color: 'blue',
-            originX: 520,
-            originY: 150,
-            gridPosX: null,
-            gridPosY: null,
-            isInGrid: false
+    const SteinTyp = {
+        ONE_X_ONE: 0,
+        ONE_X_TWO: 1,
+        ONE_X_THREE: 2,
+        ONE_X_FOUR: 3,
+        ONE_X_FIVE: 4
+    };
+
+    function createShip(type, count) {
+        let newShips = [];
+
+        for (let i = 0; i < count; i++) {
+            let newShip = {
+                id: objects.length + newShips.length,
+                x: cellSize * gridSize + cellSize,
+                y: 0,
+                w: 0,
+                h: 0,
+                color: "",
+                originX: cellSize * gridSize + cellSize,
+                originY: 0,
+                gridPosX: null,
+                gridPosY: null,
+                isInGrid: false
+            };
+
+            switch (type) {
+                case SteinTyp.ONE_X_ONE:
+                    newShip.y = cellSize / 2;
+                    newShip.originY = cellSize / 2;
+                    newShip.w = cellSize;
+                    newShip.h = cellSize;
+                    newShip.color = "gray";
+                    break;
+                case SteinTyp.ONE_X_TWO:
+                    newShip.y = cellSize * 2 + (cellSize / 2);
+                    newShip.originY = cellSize * 2 + (cellSize / 2);
+                    newShip.w = cellSize * 2;
+                    newShip.h = cellSize;
+                    newShip.color = "green";
+                    break;
+                case SteinTyp.ONE_X_THREE:
+                    newShip.y = (cellSize * 3) + (cellSize * 2) - (cellSize / 2);
+                    newShip.originY = (cellSize * 3) + (cellSize * 2) - (cellSize / 2);
+                    newShip.w = cellSize * 3;
+                    newShip.h = cellSize;
+                    newShip.color = "red";
+                    break;
+                case SteinTyp.ONE_X_FOUR:
+                    newShip.y = cellSize * 4 + cellSize * 3 - (cellSize / 2);
+                    newShip.originY = cellSize * 4 + cellSize * 3 - (cellSize / 2);
+                    newShip.w = cellSize * 4;
+                    newShip.h = cellSize;
+                    newShip.color = "blue";
+                    break;
+                case SteinTyp.ONE_X_FIVE:
+                    newShip.y = cellSize * 5 + cellSize * 4 - (cellSize / 2);
+                    newShip.originY = cellSize * 5 + cellSize * 4 - (cellSize / 2);
+                    newShip.w = cellSize * 5;
+                    newShip.h = cellSize;
+                    newShip.color = "yellow";
+                    break;
+                default:
+                    console.error("invalid ship type");
+                    return;
+            }
+
+            newShips.push(newShip);
         }
-    ];
+
+        for (let i = 1; i < newShips.length; i++) {
+            newShips[i].x += cellSize * (newShips[i].w / cellSize * i) + (cellSize * i);
+            newShips[i].originX += cellSize * (newShips[i].w / cellSize * i) + (cellSize * i);
+        }
+
+        objects.push(...newShips);
+        redraw();
+    }
+
+    let objects = [];
 
     let grid = Array(gridSize).fill(undefined).map(() => Array(gridSize).fill({
-        color: 'white',
+        color: "white",
         originX: null,
         originY: null,
         id: null,
@@ -73,6 +112,7 @@
                     continue;
                 }
                 ctx.fillStyle = grid[i][j].color;
+
                 ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
                 ctx.strokeRect(i * cellSize, j * cellSize, cellSize, cellSize);
             }
@@ -82,9 +122,20 @@
     function drawObjects() {
         objects.forEach(obj => {
             ctx.fillStyle = obj.color;
-            ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
-            ctx.strokeRect(obj.x, obj.y, obj.w, obj.h);
+            roundRect(ctx, obj.x, obj.y, obj.w, obj.h, 10);
+            ctx.fill();
+            ctx.stroke();
         });
+    }
+
+    function roundRect(ctx, x, y, width, height, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.arcTo(x + width, y, x + width, y + height, radius);
+        ctx.arcTo(x + width, y + height, x, y + height, radius);
+        ctx.arcTo(x, y + height, x, y, radius);
+        ctx.arcTo(x, y, x + width, y, radius);
+        ctx.closePath();
     }
 
     function redraw() {
@@ -95,13 +146,21 @@
 
         if (dragObject) {
             ctx.fillStyle = dragObject.color;
-            ctx.fillRect(dragObject.x, dragObject.y, dragObject.w, dragObject.h);
+            roundRect(ctx, dragObject.x, dragObject.y, dragObject.w, dragObject.h, 10);
+            ctx.fill();
+            ctx.stroke();
         }
     }
 
+    createShip(SteinTyp.ONE_X_ONE, 4);
+    createShip(SteinTyp.ONE_X_TWO, 3);
+    createShip(SteinTyp.ONE_X_THREE, 2);
+    createShip(SteinTyp.ONE_X_FOUR, 1);
+    createShip(SteinTyp.ONE_X_FIVE, 1);
+
     redraw();
 
-    canvas.addEventListener('mousedown', function (event) {
+    canvas.addEventListener("mousedown", function (event) {
         let rect = canvas.getBoundingClientRect();
         let x = event.clientX - rect.left;
         let y = event.clientY - rect.top;
@@ -129,7 +188,7 @@
             for (let di = 0; di < grid.length; di++) {
                 for (let dj = 0; dj < grid[di].length; dj++) {
                     if (grid[di][dj].id === dragObject.id) {
-                        grid[di][dj] = {color: 'white', originX: null, originY: null, id: null, w: null, h: null};
+                        grid[di][dj] = {color: "white", originX: null, originY: null, id: null, w: null, h: null};
                     }
                 }
             }
@@ -138,15 +197,15 @@
         }
     });
 
-    canvas.addEventListener('contextmenu', function(event) {
+    canvas.addEventListener("contextmenu", function (event) {
         event.preventDefault();
         canvas.focus();
 
         //todo fixen
     });
 
-    canvas.addEventListener('mouseleave', function(event) {
-       reset()
+    canvas.addEventListener("mouseleave", function (event) {
+        reset()
     });
 
     function reset() {
@@ -176,7 +235,7 @@
         }
     }
 
-    canvas.addEventListener('mousemove', function (event) {
+    canvas.addEventListener("mousemove", function (event) {
         if (dragObject) {
             let rect = canvas.getBoundingClientRect();
             let x = event.clientX - rect.left;
@@ -189,7 +248,7 @@
         }
     });
 
-    canvas.addEventListener('mouseup', function (event) {
+    canvas.addEventListener("mouseup", function (event) {
         if (dragObject) {
             let x = (event.clientX - dragObject.w / 2) + (cellSize / 2);
             let y = (event.clientY - dragObject.h / 2) + (cellSize / 2);
