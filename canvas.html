@@ -13,6 +13,8 @@
     let cellSize = canvas.height / gridSize;
     let dragObject = null;
 
+    let gridCopy = null;
+
     const SteinTyp = {
         ONE_X_ONE: 0,
         ONE_X_TWO: 1,
@@ -103,8 +105,6 @@
         h: null
     }));
 
-    let gridCopy = null;
-
     function drawGrid() {
         for (let i = 0; i < gridSize; i++) {
             for (let j = 0; j < gridSize; j++) {
@@ -113,9 +113,9 @@
                 }
                 ctx.fillStyle = grid[i][j].color;
 
-                isNeighborFreeOrDifferentId(grid, i, j, grid[i][j].id, grid[i][j].color)
+                // isNeighborFreeOrDifferentId(grid, i, j, grid[i][j].id, grid[i][j].color)
 
-                // ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+                ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
                 ctx.strokeRect(i * cellSize, j * cellSize, cellSize, cellSize);
             }
         }
@@ -175,6 +175,8 @@
     redraw();
 
     canvas.addEventListener("mousedown", function (event) {
+        reset();
+
         let rect = canvas.getBoundingClientRect();
         let x = event.clientX - rect.left;
         let y = event.clientY - rect.top;
@@ -210,44 +212,6 @@
             dragObject = objects.find(obj => x > obj.x && x < obj.x + obj.w && y > obj.y && y < obj.y + obj.h);
         }
     });
-
-    canvas.addEventListener("contextmenu", function (event) {
-        event.preventDefault();
-        canvas.focus();
-
-        //todo fixen
-    });
-
-    canvas.addEventListener("mouseleave", function (event) {
-        reset()
-    });
-
-    function reset() {
-        if (dragObject) {
-            if (!dragObject.isInGrid) {
-                objects = objects.filter(obj => obj !== dragObject);
-
-                objects.push({
-                    id: dragObject.id,
-                    x: dragObject.originX,
-                    y: dragObject.originY,
-                    w: dragObject.w,
-                    h: dragObject.h,
-                    color: dragObject.color,
-                    originX: dragObject.originX,
-                    originY: dragObject.originY,
-                    gridPosX: null,
-                    gridPosY: null,
-                    isInGrid: false
-                });
-            } else if (dragObject.isInGrid) {
-                grid = gridCopy;
-            }
-
-            dragObject = null;
-            redraw();
-        }
-    }
 
     canvas.addEventListener("mousemove", function (event) {
         if (dragObject) {
@@ -341,6 +305,34 @@
             redraw();
         }
     });
+
+    function reset() {
+        if (dragObject) {
+            if (!dragObject.isInGrid) {
+                objects = objects.filter(obj => obj !== dragObject);
+
+                objects.push({
+                    id: dragObject.id,
+                    x: dragObject.originX,
+                    y: dragObject.originY,
+                    w: dragObject.w,
+                    h: dragObject.h,
+                    color: dragObject.color,
+                    originX: dragObject.originX,
+                    originY: dragObject.originY,
+                    gridPosX: null,
+                    gridPosY: null,
+                    isInGrid: false
+                });
+            } else if (dragObject.isInGrid) {
+                grid = gridCopy;
+            }
+
+            dragObject = null;
+            redraw();
+        }
+    }
+
 </script>
 
 </body>
